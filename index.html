@@ -31,12 +31,14 @@
     --font:    'Press Start 2P', monospace;
   }
   html {
-    background: var(--card);
+    background: #251848;
   }
   html, body {
     height: 100%;
-    background: linear-gradient(160deg, var(--bg) 0%, var(--bgGrad) 100%);
-    background-attachment: fixed;
+    background: #251848;
+  }
+  body {
+    background: linear-gradient(160deg, #1a1035 0%, #2d1b5e 100%);
     color: var(--text);
     font-family: var(--font);
     overflow-x: hidden;
@@ -72,15 +74,7 @@
     box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
     padding-bottom: env(safe-area-inset-bottom);
   }
-  #tabbar::after {
-    content: '';
-    display: block;
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: env(safe-area-inset-bottom);
-    background: var(--card);
-    z-index: 101;
-  }
+
   .tab-btn {
     flex: 1; border: none; background: transparent; color: var(--textDim);
     font-family: var(--font); font-size: 5px; padding: 10px 2px 8px;
@@ -781,5 +775,13 @@ load();
 updateDateLabel();
 render();
 </script>
+<div id="bottom-cover" style="
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: env(safe-area-inset-bottom, 34px);
+  background: #251848;
+  z-index: 99;
+  pointer-events: none;
+"></div>
 </body>
 </html>
