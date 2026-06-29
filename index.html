@@ -10,6 +10,60 @@
 <title>Rotina RPG – Alexandre</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script>
+(function(){
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+    <rect width="180" height="180" rx="36" fill="#1a1035"/>
+    <rect width="180" height="180" rx="36" fill="#2d1b5e" opacity="0.5"/>
+    <line x1="30" y1="50"  x2="30"  y2="140" stroke="#4a3080" stroke-width="2"/>
+    <line x1="30" y1="140" x2="155" y2="140" stroke="#4a3080" stroke-width="2"/>
+    <rect x="26" y="67"  width="8" height="4" fill="#4a3080"/>
+    <rect x="26" y="89"  width="8" height="4" fill="#4a3080"/>
+    <rect x="26" y="111" width="8" height="4" fill="#4a3080"/>
+    <rect x="55"  y="136" width="4" height="8" fill="#4a3080"/>
+    <rect x="83"  y="136" width="4" height="8" fill="#4a3080"/>
+    <rect x="111" y="136" width="4" height="8" fill="#4a3080"/>
+    <rect x="139" y="136" width="4" height="8" fill="#4a3080"/>
+    <rect x="40" y="114" width="6" height="6" fill="#f5c842"/>
+    <rect x="46" y="108" width="6" height="6" fill="#f5c842"/>
+    <rect x="52" y="102" width="6" height="6" fill="#f5c842"/>
+    <rect x="58" y="96"  width="6" height="6" fill="#f5c842"/>
+    <rect x="64" y="90"  width="6" height="6" fill="#f5c842"/>
+    <rect x="70" y="84"  width="6" height="6" fill="#f5c842"/>
+    <rect x="76" y="78"  width="6" height="6" fill="#f5c842"/>
+    <rect x="82" y="72"  width="6" height="6" fill="#f5c842"/>
+    <rect x="82" y="78"  width="6" height="6" fill="#f87171"/>
+    <rect x="88" y="84"  width="6" height="6" fill="#f87171"/>
+    <rect x="94" y="90"  width="6" height="6" fill="#f87171"/>
+    <rect x="94"  y="84" width="6" height="6" fill="#f5c842"/>
+    <rect x="100" y="78" width="6" height="6" fill="#f5c842"/>
+    <rect x="106" y="72" width="6" height="6" fill="#f5c842"/>
+    <rect x="112" y="66" width="6" height="6" fill="#f5c842"/>
+    <rect x="118" y="60" width="6" height="6" fill="#f5c842"/>
+    <rect x="118" y="66" width="6" height="6" fill="#f87171"/>
+    <rect x="124" y="72" width="6" height="6" fill="#f87171"/>
+    <rect x="130" y="66" width="6" height="6" fill="#f5c842"/>
+    <rect x="136" y="60" width="6" height="6" fill="#f5c842"/>
+    <rect x="142" y="54" width="6" height="6" fill="#f5c842"/>
+    <rect x="142" y="42" width="6" height="6" fill="#f5c842"/>
+    <rect x="136" y="48" width="6" height="6" fill="#f5c842"/>
+    <rect x="148" y="48" width="6" height="6" fill="#f5c842"/>
+    <rect width="180" height="180" rx="36" fill="none" stroke="#4a3080" stroke-width="3"/>
+  </svg>`;
+  const b64 = btoa(svg);
+  const url = 'data:image/svg+xml;base64,' + b64;
+  const link180 = document.createElement('link');
+  link180.rel = 'apple-touch-icon';
+  link180.sizes = '180x180';
+  link180.href = url;
+  document.head.appendChild(link180);
+  const linkIcon = document.createElement('link');
+  linkIcon.rel = 'icon';
+  linkIcon.type = 'image/svg+xml';
+  linkIcon.href = 'data:image/svg+xml;base64,' + b64;
+  document.head.appendChild(linkIcon);
+})();
+</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
