@@ -31,11 +31,12 @@
     --font:    'Press Start 2P', monospace;
   }
   html {
-    background: #1a1035;
+    background: var(--card);
   }
   html, body {
     height: 100%;
     background: linear-gradient(160deg, var(--bg) 0%, var(--bgGrad) 100%);
+    background-attachment: fixed;
     color: var(--text);
     font-family: var(--font);
     overflow-x: hidden;
@@ -64,13 +65,21 @@
 
   /* ── TAB BAR ── */
   #tabbar {
-    padding-bottom: env(safe-area-inset-bottom);
-    background: var(--card);
-    /* extend bg color below home indicator */
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.4), 0 100px 0 100px var(--card);
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-    background: var(--card); border-top: 3px solid var(--border);
-    display: flex; box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+    background: var(--card);
+    border-top: 3px solid var(--border);
+    display: flex;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  #tabbar::after {
+    content: '';
+    display: block;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: env(safe-area-inset-bottom);
+    background: var(--card);
+    z-index: 101;
   }
   .tab-btn {
     flex: 1; border: none; background: transparent; color: var(--textDim);
