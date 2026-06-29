@@ -12,56 +12,90 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <script>
 (function(){
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
-    <rect width="180" height="180" rx="36" fill="#1a1035"/>
-    <rect width="180" height="180" rx="36" fill="#2d1b5e" opacity="0.5"/>
-    <line x1="30" y1="50"  x2="30"  y2="140" stroke="#4a3080" stroke-width="2"/>
-    <line x1="30" y1="140" x2="155" y2="140" stroke="#4a3080" stroke-width="2"/>
-    <rect x="26" y="67"  width="8" height="4" fill="#4a3080"/>
-    <rect x="26" y="89"  width="8" height="4" fill="#4a3080"/>
-    <rect x="26" y="111" width="8" height="4" fill="#4a3080"/>
-    <rect x="55"  y="136" width="4" height="8" fill="#4a3080"/>
-    <rect x="83"  y="136" width="4" height="8" fill="#4a3080"/>
-    <rect x="111" y="136" width="4" height="8" fill="#4a3080"/>
-    <rect x="139" y="136" width="4" height="8" fill="#4a3080"/>
-    <rect x="40" y="114" width="6" height="6" fill="#f5c842"/>
-    <rect x="46" y="108" width="6" height="6" fill="#f5c842"/>
-    <rect x="52" y="102" width="6" height="6" fill="#f5c842"/>
-    <rect x="58" y="96"  width="6" height="6" fill="#f5c842"/>
-    <rect x="64" y="90"  width="6" height="6" fill="#f5c842"/>
-    <rect x="70" y="84"  width="6" height="6" fill="#f5c842"/>
-    <rect x="76" y="78"  width="6" height="6" fill="#f5c842"/>
-    <rect x="82" y="72"  width="6" height="6" fill="#f5c842"/>
-    <rect x="82" y="78"  width="6" height="6" fill="#f87171"/>
-    <rect x="88" y="84"  width="6" height="6" fill="#f87171"/>
-    <rect x="94" y="90"  width="6" height="6" fill="#f87171"/>
-    <rect x="94"  y="84" width="6" height="6" fill="#f5c842"/>
-    <rect x="100" y="78" width="6" height="6" fill="#f5c842"/>
-    <rect x="106" y="72" width="6" height="6" fill="#f5c842"/>
-    <rect x="112" y="66" width="6" height="6" fill="#f5c842"/>
-    <rect x="118" y="60" width="6" height="6" fill="#f5c842"/>
-    <rect x="118" y="66" width="6" height="6" fill="#f87171"/>
-    <rect x="124" y="72" width="6" height="6" fill="#f87171"/>
-    <rect x="130" y="66" width="6" height="6" fill="#f5c842"/>
-    <rect x="136" y="60" width="6" height="6" fill="#f5c842"/>
-    <rect x="142" y="54" width="6" height="6" fill="#f5c842"/>
-    <rect x="142" y="42" width="6" height="6" fill="#f5c842"/>
-    <rect x="136" y="48" width="6" height="6" fill="#f5c842"/>
-    <rect x="148" y="48" width="6" height="6" fill="#f5c842"/>
-    <rect width="180" height="180" rx="36" fill="none" stroke="#4a3080" stroke-width="3"/>
-  </svg>`;
-  const b64 = btoa(svg);
-  const url = 'data:image/svg+xml;base64,' + b64;
-  const link180 = document.createElement('link');
-  link180.rel = 'apple-touch-icon';
-  link180.sizes = '180x180';
-  link180.href = url;
-  document.head.appendChild(link180);
-  const linkIcon = document.createElement('link');
-  linkIcon.rel = 'icon';
-  linkIcon.type = 'image/svg+xml';
-  linkIcon.href = 'data:image/svg+xml;base64,' + b64;
-  document.head.appendChild(linkIcon);
+  // Safari only accepts real URLs for apple-touch-icon.
+  // We draw the icon on a canvas and inject as PNG data URL.
+  function buildIcon() {
+    const SIZE = 180;
+    const c = document.createElement('canvas');
+    c.width = c.height = SIZE;
+    const ctx = c.getContext('2d');
+
+    // Background
+    ctx.fillStyle = '#1a1035';
+    roundRect(ctx, 0, 0, SIZE, SIZE, 36);
+    ctx.fill();
+    ctx.fillStyle = '#2d1b5e';
+    ctx.globalAlpha = 0.5;
+    roundRect(ctx, 0, 0, SIZE, SIZE, 36);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // Axes
+    ctx.strokeStyle = '#4a3080';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(30,50);  ctx.lineTo(30,140);  ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(30,140); ctx.lineTo(155,140); ctx.stroke();
+
+    // Y axis ticks
+    ctx.fillStyle = '#4a3080';
+    [[26,67],[26,89],[26,111]].forEach(([x,y]) => ctx.fillRect(x,y,8,4));
+    // X axis ticks
+    [[55,136],[83,136],[111,136],[139,136]].forEach(([x,y]) => ctx.fillRect(x,y,4,8));
+
+    // Chart pixels — gold segments
+    const G = '#f5c842', R = '#f87171';
+    const gold = [
+      [40,114],[46,108],[52,102],[58,96],[64,90],[70,84],[76,78],[82,72],
+      [94,84],[100,78],[106,72],[112,66],[118,60],
+      [130,66],[136,60],[142,54],
+      // arrow head
+      [142,42],[136,48],[148,48]
+    ];
+    const red = [[82,78],[88,84],[94,90],[118,66],[124,72]];
+
+    ctx.fillStyle = G;
+    gold.forEach(([x,y]) => ctx.fillRect(x,y,6,6));
+    ctx.fillStyle = R;
+    red.forEach(([x,y])  => ctx.fillRect(x,y,6,6));
+
+    // Border
+    ctx.strokeStyle = '#4a3080';
+    ctx.lineWidth = 3;
+    roundRect(ctx, 0, 0, SIZE, SIZE, 36);
+    ctx.stroke();
+
+    return c.toDataURL('image/png');
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.lineTo(x+w-r, y);
+    ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+    ctx.lineTo(x+w, y+h-r);
+    ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+    ctx.lineTo(x+r, y+h);
+    ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+    ctx.lineTo(x, y+r);
+    ctx.quadraticCurveTo(x, y, x+r, y);
+    ctx.closePath();
+  }
+
+  window.addEventListener('DOMContentLoaded', function() {
+    try {
+      const png = buildIcon();
+      const l1 = document.createElement('link');
+      l1.rel = 'apple-touch-icon';
+      l1.sizes = '180x180';
+      l1.href = png;
+      document.head.appendChild(l1);
+      const l2 = document.createElement('link');
+      l2.rel = 'icon';
+      l2.type = 'image/png';
+      l2.href = png;
+      document.head.appendChild(l2);
+    } catch(e) {}
+  });
 })();
 </script>
 <style>
