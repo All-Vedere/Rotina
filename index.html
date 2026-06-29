@@ -65,6 +65,9 @@
   /* ── TAB BAR ── */
   #tabbar {
     padding-bottom: env(safe-area-inset-bottom);
+    background: var(--card);
+    /* extend bg color below home indicator */
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.4), 0 100px 0 100px var(--card);
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
     background: var(--card); border-top: 3px solid var(--border);
     display: flex; box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
@@ -207,9 +210,9 @@
   /* ── DAY PILLS ── */
   .days-wrap { display: flex; gap: 5px; flex-wrap: wrap; }
   .day-pill {
-    font-family: var(--font); font-size: 6px; background: var(--card);
+    font-family: var(--font); font-size: 9px; background: var(--card);
     color: var(--textDim); border: 2px solid var(--border); border-radius: 6px;
-    padding: 8px 6px; cursor: pointer; min-width: 36px; text-align: center;
+    padding: 12px 4px; cursor: pointer; min-width: 40px; text-align: center;
     box-shadow: 0 2px 0 var(--border);
   }
   .day-pill.active { background: var(--accent); color: #1a1035; border-color: var(--accent); box-shadow: 0 3px 0 var(--accentD); transform: translateY(-1px); }
@@ -363,7 +366,7 @@ function saveTasks() { try { localStorage.setItem("rotina_tasks", JSON.stringify
 function saveCompletions() { try { localStorage.setItem("completions", JSON.stringify(state.completions)); } catch {} }
 
 // ── HELPERS ──────────────────────────────────────────────────────
-function todayStr() { return new Date().toISOString().slice(0,10); }
+function todayStr() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 function todayDow()  { return new Date().getDay(); }
 function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
