@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Alexandre">
@@ -30,6 +30,9 @@
     --textDim: #9d85cc;
     --font:    'Press Start 2P', monospace;
   }
+  html {
+    background: #1a1035;
+  }
   html, body {
     height: 100%;
     background: linear-gradient(160deg, var(--bg) 0%, var(--bgGrad) 100%);
@@ -37,7 +40,12 @@
     font-family: var(--font);
     overflow-x: hidden;
   }
-  body { padding-bottom: 80px; }
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
 
   #app { max-width: 560px; margin: 0 auto; padding: 20px 16px 0; }
 
@@ -56,6 +64,7 @@
 
   /* ── TAB BAR ── */
   #tabbar {
+    padding-bottom: env(safe-area-inset-bottom);
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
     background: var(--card); border-top: 3px solid var(--border);
     display: flex; box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
