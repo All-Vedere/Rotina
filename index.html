@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Alexandre">
+<meta name="theme-color" content="#1a1035">
+<title>Rotina RPG – Alexandre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:      #1a1035;
+    --bgGrad:  #2d1b5e;
+    --card:    #251848;
+    --cardAlt: #1f1440;
+    --border:  #4a3080;
+    --accent:  #f5c842;
+    --accentD: #c9a020;
+    --green:   #4ade80;
+    --greenD:  #16a34a;
+    --red:     #f87171;
+    --redD:    #dc2626;
+    --text:    #e8d9ff;
+    --textDim: #9d85cc;
+    --font:    'Press Start 2P', monospace;
+  }
+  html, body {
+    height: 100%;
+    background: linear-gradient(160deg, var(--bg) 0%, var(--bgGrad) 100%);
+    color: var(--text);
+    font-family: var(--font);
+    overflow-x: hidden;
+  }
+  body { padding-bottom: 80px; }
+
+  #app { max-width: 560px; margin: 0 auto; padding: 20px 16px 0; }
+
+  /* ── HEADER ── */
+  .header { text-align: center; margin-bottom: 18px; }
+  .badge {
+    display: inline-block; background: var(--accent); color: #1a1035;
+    font-size: 6px; padding: 4px 14px; border-radius: 20px;
+    margin-bottom: 12px; box-shadow: 0 3px 0 var(--accentD); letter-spacing: 2px;
+  }
+  .title {
+    font-size: 16px; color: var(--accent); letter-spacing: 4px;
+    margin-bottom: 6px; text-shadow: 0 0 20px #f5c84280;
+  }
+  .date-label { font-size: 6px; color: var(--textDim); }
+
+  /* ── TAB BAR ── */
+  #tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+    background: var(--card); border-top: 3px solid var(--border);
+    display: flex; box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+  }
+  .tab-btn {
+    flex: 1; border: none; background: transparent; color: var(--textDim);
+    font-family: var(--font); font-size: 5px; padding: 10px 2px 8px;
+    cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    border-top: 3px solid transparent; transition: background 0.2s;
+  }
+  .tab-btn.active { background: var(--accent); color: #1a1035; border-top-color: var(--accentD); }
+  .tab-btn .tab-icon { font-size: 16px; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card); border: 2px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 12px;
+    box-shadow: 0 4px 0 var(--border);
+  }
+  .card-lg { border-radius: 14px; padding: 18px; box-shadow: 0 6px 0 var(--border); }
+
+  /* ── PROGRESS ── */
+  .progress-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; }
+  .progress-label { font-size: 6px; color: var(--textDim); margin-bottom: 5px; letter-spacing: 2px; }
+  .progress-counts { font-size: 7px; color: var(--text); }
+  .progress-counts .big { font-size: 11px; }
+  .progress-pct { font-size: 22px; font-family: var(--font); transition: color 0.5s; }
+  .progress-track {
+    background: #0d0920; border-radius: 6px; height: 22px;
+    border: 2px solid var(--border); overflow: hidden; padding: 3px;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 3px; transition: width 0.6s ease;
+    position: relative; overflow: hidden; min-width: 0;
+    background: linear-gradient(90deg, var(--accentD), var(--accent));
+  }
+  .progress-fill.green { background: linear-gradient(90deg, var(--greenD), var(--green)); }
+  .progress-fill::before {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(255,255,255,0.12) 10px, rgba(255,255,255,0.12) 12px);
+  }
+  .progress-fill::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 40%;
+    background: rgba(255,255,255,0.18); border-radius: 3px 3px 0 0;
+  }
+  .ticks { display: flex; gap: 3px; margin-top: 8px; }
+  .tick { flex: 1; height: 5px; border-radius: 2px; background: var(--border); transition: background 0.3s; }
+  .tick.done { background: var(--green); box-shadow: 0 0 4px #4ade8080; }
+  .tick.skip { background: var(--red); }
+
+  /* ── TASK ROW ── */
+  .task-row {
+    background: var(--card); border: 2px solid var(--border);
+    border-radius: 10px; padding: 12px; margin-bottom: 8px;
+    box-shadow: 0 4px 0 var(--border); display: flex; align-items: center; gap: 10px;
+    transition: opacity 0.2s, border-color 0.2s;
+  }
+  .task-row.done-row { opacity: 0.75; border-color: var(--green); }
+  .task-row.skip-row { opacity: 0.75; border-color: #dc262680; }
+  .task-row.overdue-row { background: #2a0a0a; border-color: var(--red); box-shadow: 0 4px 0 var(--redD); }
+  .task-info { flex: 1; min-width: 0; }
+  .task-overdue-label { font-size: 5px; color: var(--red); margin-bottom: 4px; letter-spacing: 1px; }
+  .task-name { font-size: 8px; word-break: break-word; line-height: 1.8; color: var(--text); }
+  .task-name.done-text { color: var(--green); text-decoration: line-through; }
+  .task-name.skip-text { color: var(--red); text-decoration: line-through; }
+  .task-type { font-size: 5px; color: var(--textDim); margin-top: 3px; }
+  .task-btns { display: flex; gap: 6px; flex-shrink: 0; }
+  .mark-btn {
+    width: 34px; height: 34px; border: none; border-radius: 6px; cursor: pointer;
+    font-size: 14px; transition: all 0.1s; background: var(--cardAlt); color: var(--textDim);
+    box-shadow: 0 3px 0 var(--border);
+  }
+  .mark-btn.active-done { background: var(--green); color: #1a1035; box-shadow: 0 3px 0 var(--greenD); transform: translateY(1px); }
+  .mark-btn.active-skip { background: var(--red); color: #fff; box-shadow: 0 3px 0 var(--redD); transform: translateY(1px); }
+
+  /* ── SECTION LABEL ── */
+  .section-label { font-size: 6px; color: var(--textDim); margin-bottom: 8px; letter-spacing: 1px; }
+  .section-label.red { color: var(--red); display: flex; align-items: center; gap: 6px; }
+  .badge-count {
+    background: var(--red); color: #fff; border-radius: 10px;
+    padding: 1px 7px; font-size: 6px;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    background: var(--card); border: 2px dashed var(--border);
+    border-radius: 12px; padding: 28px 16px; text-align: center; margin-bottom: 12px;
+  }
+  .empty-icon { font-size: 30px; margin-bottom: 10px; }
+  .empty-title { font-size: 7px; color: var(--accent); line-height: 2.2; }
+  .empty-sub { font-size: 6px; color: var(--textDim); }
+
+  /* ── ALL DONE BANNER ── */
+  .all-done {
+    background: linear-gradient(135deg, #1a4a20, #2a6a30);
+    border: 2px solid var(--green); border-radius: 12px; padding: 18px;
+    text-align: center; margin-top: 12px; box-shadow: 0 6px 0 var(--greenD);
+  }
+  .all-done-icon { font-size: 28px; margin-bottom: 6px; }
+  .all-done-title { font-size: 9px; color: var(--green); }
+  .all-done-sub { font-size: 6px; color: rgba(74,222,128,0.7); margin-top: 4px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: var(--font); font-size: 8px; border: none; padding: 10px 16px;
+    cursor: pointer; letter-spacing: 1px; text-transform: uppercase;
+    border-radius: 6px; transition: transform 0.05s, box-shadow 0.05s;
+  }
+  .btn:active { transform: translateY(4px); box-shadow: none !important; }
+  .btn-accent { background: var(--accent); color: #1a1035; box-shadow: 0 4px 0 var(--accentD); }
+  .btn-accent:disabled { background: var(--border); color: var(--textDim); box-shadow: 0 4px 0 #333; opacity: 0.5; cursor: not-allowed; }
+  .btn-full { width: 100%; text-align: center; display: block; }
+  .btn-back {
+    background: none; border: none; color: var(--textDim); font-family: var(--font);
+    font-size: 7px; cursor: pointer; margin-bottom: 14px;
+  }
+
+  /* ── INPUTS ── */
+  .input {
+    width: 100%; background: var(--cardAlt); border: 2px solid var(--border);
+    color: var(--text); font-family: var(--font); font-size: 8px;
+    padding: 10px 12px; outline: none; border-radius: 8px;
+  }
+  .input:focus { border-color: var(--accent); }
+  input[type="date"] { color-scheme: dark; }
+  input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; filter: invert(0.7) sepia(1) hue-rotate(180deg); }
+
+  /* ── TYPE BUTTONS ── */
+  .type-btns { display: flex; gap: 8px; }
+  .type-btn {
+    flex: 1; border: 2px solid var(--border); background: var(--card);
+    color: var(--textDim); border-radius: 10px; padding: 12px 6px;
+    cursor: pointer; font-family: var(--font); text-align: center;
+    box-shadow: 0 3px 0 var(--border);
+  }
+  .type-btn.active { border-color: var(--accent); background: #f5c84222; color: var(--accent); box-shadow: 0 4px 0 var(--accentD); }
+  .type-btn-label { font-size: 7px; margin-bottom: 4px; }
+  .type-btn-sub { font-size: 5px; opacity: 0.8; }
+
+  /* ── DAY PILLS ── */
+  .days-wrap { display: flex; gap: 5px; flex-wrap: wrap; }
+  .day-pill {
+    font-family: var(--font); font-size: 6px; background: var(--card);
+    color: var(--textDim); border: 2px solid var(--border); border-radius: 6px;
+    padding: 8px 6px; cursor: pointer; min-width: 36px; text-align: center;
+    box-shadow: 0 2px 0 var(--border);
+  }
+  .day-pill.active { background: var(--accent); color: #1a1035; border-color: var(--accent); box-shadow: 0 3px 0 var(--accentD); transform: translateY(-1px); }
+
+  /* ── HISTORY ── */
+  .hist-btn {
+    width: 100%; background: var(--card); border: 2px solid var(--border);
+    border-radius: 10px; padding: 12px 14px; margin-bottom: 8px;
+    cursor: pointer; text-align: left; box-shadow: 0 4px 0 var(--border);
+    display: block;
+  }
+  .hist-btn-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .hist-name { font-size: 7px; color: var(--text); word-break: break-word; line-height: 1.6; flex: 1; }
+  .hist-pct { font-size: 8px; color: var(--accent); font-family: var(--font); flex-shrink: 0; }
+  .mini-bar { background: #0d0920; border-radius: 4px; height: 8px; overflow: hidden; position: relative; }
+  .mini-fill { height: 100%; border-radius: 4px; transition: width 0.4s; background: linear-gradient(90deg, var(--greenD), var(--green)); }
+  .mini-red { position: absolute; right: 0; top: 0; height: 100%; background: rgba(248,113,113,0.4); border-radius: 0 4px 4px 0; }
+  .hist-stats { display: flex; gap: 12px; margin-top: 6px; }
+  .hist-stat { font-size: 5px; }
+  .stat-green { color: var(--green); }
+  .stat-red { color: var(--red); }
+  .stat-dim { color: var(--textDim); }
+
+  /* detail stats row */
+  .stats-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .stat-card { flex: 1; background: var(--card); border: 2px solid var(--border); border-radius: 8px; padding: 10px 6px; text-align: center; box-shadow: 0 3px 0 var(--border); }
+  .stat-val { font-size: 14px; font-family: var(--font); margin-bottom: 4px; }
+  .stat-lbl { font-size: 5px; color: var(--textDim); }
+
+  /* calendar */
+  .cal-wrap { display: flex; flex-wrap: wrap; gap: 5px; }
+  .cal-day {
+    width: 28px; height: 28px; border-radius: 5px;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 1px; border: 2px solid var(--border);
+  }
+  .cal-num { font-size: 5px; font-family: var(--font); }
+  .cal-sym { font-size: 8px; }
+
+  /* log list */
+  .log-item {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 12px; margin-bottom: 4px;
+  }
+  .log-icon { font-size: 12px; }
+  .log-date { font-size: 6px; color: var(--textDim); flex: 1; }
+  .log-status { font-size: 6px; }
+
+  /* manage */
+  .manage-card {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card); border: 2px solid var(--border);
+    border-radius: 8px; padding: 10px 12px; margin-bottom: 6px;
+    box-shadow: 0 3px 0 var(--border);
+  }
+  .manage-name { font-size: 7px; color: var(--text); word-break: break-word; line-height: 1.7; margin-bottom: 4px; }
+  .day-tags { display: flex; gap: 3px; flex-wrap: wrap; }
+  .day-tag { font-size: 5px; font-family: var(--font); border-radius: 3px; padding: 2px 4px; border: 1px solid var(--border); }
+  .day-tag.on { background: var(--accent); color: #1a1035; }
+  .day-tag.off { background: var(--cardAlt); color: var(--textDim); }
+  .del-btn {
+    background: var(--red); border: none; color: #fff; cursor: pointer;
+    font-size: 8px; padding: 5px 8px; font-family: var(--font);
+    border-radius: 4px; box-shadow: 0 2px 0 var(--redD); flex-shrink: 0;
+  }
+
+  /* flash */
+  #flash {
+    position: fixed; top: 28%; left: 50%; transform: translateX(-50%);
+    z-index: 10000; pointer-events: none; text-align: center;
+    animation: flashPop 1.4s ease forwards; display: none;
+  }
+  #flash.show { display: block; }
+  .flash-emoji { font-size: 40px; margin-bottom: 4px; }
+  .flash-text {
+    font-family: var(--font); font-size: 14px; color: #1a1035;
+    background: var(--accent); padding: 10px 20px; border-radius: 8px;
+    box-shadow: 0 6px 0 var(--accentD); white-space: nowrap;
+  }
+
+  /* footer */
+  .footer { text-align: center; margin-top: 24px; font-size: 5px; color: var(--textDim); opacity: 0.4; letter-spacing: 2px; }
+
+  /* saved msg */
+  .saved-msg { text-align: center; margin-top: 12px; font-size: 7px; color: var(--green); }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 4px; background: #0d0920; }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+
+  @keyframes flashPop {
+    0%   { opacity:0; transform:translateX(-50%) scale(0.6); }
+    20%  { opacity:1; transform:translateX(-50%) scale(1.15); }
+    80%  { opacity:1; transform:translateX(-50%) scale(1); }
+    100% { opacity:0; transform:translateX(-50%) scale(0.9); }
+  }
+  .sub-title { font-size: 9px; color: var(--accent); margin-bottom: 16px; }
+  .form-label { font-size: 6px; color: var(--textDim); margin-bottom: 8px; }
+  .form-group { margin-bottom: 16px; }
+  .hint { font-size: 6px; color: var(--textDim); margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="header">
+    <div class="badge">◄ ROUTINE QUEST ►</div>
+    <div class="title">ALEXANDRE</div>
+    <div class="date-label" id="date-label"></div>
+  </div>
+  <div id="tab-content"></div>
+  <div class="footer">🕹️ INSERT COIN TO CONTINUE 🕹️</div>
+</div>
+
+<nav id="tabbar">
+  <button class="tab-btn active" data-tab="hoje"><span class="tab-icon">📋</span>HOJE</button>
+  <button class="tab-btn" data-tab="historico"><span class="tab-icon">📊</span>HISTÓRICO</button>
+  <button class="tab-btn" data-tab="adicionar"><span class="tab-icon">➕</span>ADICIONAR</button>
+  <button class="tab-btn" data-tab="gerenciar"><span class="tab-icon">⚙️</span>TAREFAS</button>
+</nav>
+
+<div id="flash">
+  <div class="flash-emoji" id="flash-emoji"></div>
+  <div class="flash-text" id="flash-text"></div>
+</div>
+
+<script>
+// ── STATE ────────────────────────────────────────────────────────
+const DAYS_PT = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+const MSGS = [
+  {text:"ARRASOU!",emoji:"🏆"},{text:"INCRÍVEL!",emoji:"⭐"},
+  {text:"COMBO!",emoji:"🔥"},{text:"PERFEITO!",emoji:"💎"},{text:"ÉPICO!",emoji:"🌟"}
+];
+
+let state = {
+  tab: "hoje",
+  tasks: [],
+  completions: {},
+  // form state
+  tipo: "recorrente",
+  dias: [],
+  histSelected: null,
+};
+
+function load() {
+  try { state.tasks = JSON.parse(localStorage.getItem("rotina_tasks") || "[]"); } catch {}
+  try { state.completions = JSON.parse(localStorage.getItem("completions") || "{}"); } catch {}
+}
+function saveTasks() { try { localStorage.setItem("rotina_tasks", JSON.stringify(state.tasks)); } catch {} }
+function saveCompletions() { try { localStorage.setItem("completions", JSON.stringify(state.completions)); } catch {} }
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function todayStr() { return new Date().toISOString().slice(0,10); }
+function todayDow()  { return new Date().getDay(); }
+function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+function tasksForToday() {
+  const t = todayStr(), d = todayDow();
+  return state.tasks.filter(tk =>
+    tk.type === "recorrente" ? (tk.days && tk.days.includes(d)) : tk.date === t
+  );
+}
+function overdueTasks() {
+  const t = todayStr();
+  return state.tasks.filter(tk => tk.type === "unica" && tk.date < t);
+}
+function compKey(id, date) { return `${id}_${date || todayStr()}`; }
+function getStatus(id, date) { return state.completions[compKey(id, date)] || null; }
+
+function setStatus(id, date, val) {
+  const k = compKey(id, date);
+  if (state.completions[k] === val) {
+    delete state.completions[k];
+  } else {
+    state.completions[k] = val;
+    if (val === "done") showFlash();
+  }
+  saveCompletions();
+  render();
+}
+
+function showFlash() {
+  const m = MSGS[Math.floor(Math.random()*MSGS.length)];
+  const el = document.getElementById("flash");
+  document.getElementById("flash-emoji").textContent = m.emoji;
+  document.getElementById("flash-text").textContent  = m.text;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 1400);
+}
+
+function last30() {
+  const days = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    days.push(d.toISOString().slice(0,10));
+  }
+  return days;
+}
+function scheduledDays(t) {
+  if (t.type === "unica") return [t.date];
+  return last30().filter(d => {
+    const dow = new Date(d + "T12:00:00").getDay();
+    return t.days && t.days.includes(dow);
+  });
+}
+function taskStats(t) {
+  const sched = scheduledDays(t);
+  const done  = sched.filter(d => state.completions[`${t.id}_${d}`] === "done").length;
+  const skip  = sched.filter(d => state.completions[`${t.id}_${d}`] === "skip").length;
+  const total = sched.length;
+  const pct   = total === 0 ? 0 : Math.round((done/total)*100);
+  return { done, skip, total, pct, sched };
+}
+
+// ── DATE LABEL ───────────────────────────────────────────────────
+function updateDateLabel() {
+  document.getElementById("date-label").textContent =
+    new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"2-digit"}).toUpperCase();
+}
+
+// ── RENDER ───────────────────────────────────────────────────────
+function render() {
+  const el = document.getElementById("tab-content");
+  switch(state.tab) {
+    case "hoje":      el.innerHTML = renderHoje();      break;
+    case "historico": el.innerHTML = renderHistorico(); break;
+    case "adicionar": el.innerHTML = renderAdicionar(); break;
+    case "gerenciar": el.innerHTML = renderGerenciar(); break;
+  }
+  bindEvents();
+}
+
+// ── TAB HOJE ─────────────────────────────────────────────────────
+function renderHoje() {
+  const today  = todayStr();
+  const tt     = tasksForToday();
+  const ot     = overdueTasks().filter(t => getStatus(t.id, t.date) !== "done");
+  const done   = tt.filter(t => getStatus(t.id, today) === "done");
+  const skip   = tt.filter(t => getStatus(t.id, today) === "skip");
+  const total  = tt.length;
+  const comp   = done.length;
+  const pct    = total === 0 ? 0 : Math.round((comp/total)*100);
+  const allAns = total > 0 && tt.every(t => !!getStatus(t.id, today));
+  const isGreen = allAns;
+  const barCls  = isGreen ? "green" : "";
+
+  let html = `
+  <div class="card card-lg" style="margin-bottom:14px">
+    <div class="progress-header">
+      <div>
+        <div class="progress-label">PROGRESSO DO DIA</div>
+        <div class="progress-counts">
+          <span class="big" style="color:${isGreen?"var(--green)":"var(--accent)"}">${comp}</span>
+          <span style="color:var(--textDim)"> / ${total} feitas</span>
+          ${skip.length > 0 ? `<span style="color:var(--red);margin-left:8px">· ${skip.length} puladas</span>` : ""}
+        </div>
+      </div>
+      <div class="progress-pct" style="color:${isGreen?"var(--green)":"var(--accent)"}">${pct}%</div>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill ${barCls}" style="width:${pct}%"></div>
+    </div>
+    ${total > 1 ? `<div class="ticks">${tt.map(t => {
+      const s = getStatus(t.id, today);
+      return `<div class="tick ${s==="done"?"done":s==="skip"?"skip":""}"></div>`;
+    }).join("")}</div>` : ""}
+  </div>`;
+
+  if (ot.length > 0) {
+    html += `<div style="margin-bottom:14px">
+      <div class="section-label red">⚠️ EM ATRASO <span class="badge-count">${ot.length}</span></div>
+      ${ot.map(t => taskRowHTML(t, t.date, true)).join("")}
+    </div>`;
+  }
+
+  if (total === 0) {
+    html += `<div class="empty">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">NENHUMA TAREFA HOJE<br><span class="empty-sub">ADICIONE NA ABA ➕</span></div>
+    </div>`;
+  } else {
+    html += `<div class="section-label">📋 TAREFAS DE HOJE</div>
+    ${tt.map(t => taskRowHTML(t, today, false)).join("")}`;
+  }
+
+  if (allAns && total > 0) {
+    html += `<div class="all-done">
+      <div class="all-done-icon">🏆</div>
+      <div class="all-done-title">DIA REGISTRADO!</div>
+      <div class="all-done-sub">${done.length} feitas · ${skip.length} puladas</div>
+    </div>`;
+  }
+
+  return html;
+}
+
+function taskRowHTML(t, date, overdue) {
+  const s = getStatus(t.id, date);
+  const isDone = s === "done", isSkip = s === "skip";
+  const rowCls = overdue ? "overdue-row" : isDone ? "done-row" : isSkip ? "skip-row" : "";
+  const nameCls = isDone ? "done-text" : isSkip ? "skip-text" : "";
+  const dateLabel = overdue
+    ? `<div class="task-overdue-label">⚠️ ${new Date(date+"T12:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})} · ATRASADA</div>`
+    : `<div class="task-type">${t.type==="recorrente"?"🔁 recorrente":"📅 única"}</div>`;
+  return `
+  <div class="task-row ${rowCls}">
+    <div class="task-info">
+      ${overdue ? `<div class="task-overdue-label">⚠️ ${new Date(date+"T12:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})} · ATRASADA</div>` : ""}
+      <div class="task-name ${nameCls}">${esc(t.name)}</div>
+      ${!overdue ? `<div class="task-type">${t.type==="recorrente"?"🔁 recorrente":"📅 única"}</div>` : ""}
+    </div>
+    <div class="task-btns">
+      <button class="mark-btn ${isDone?"active-done":""}" data-action="mark" data-id="${t.id}" data-date="${date}" data-val="done">✓</button>
+      <button class="mark-btn ${isSkip?"active-skip":""}" data-action="mark" data-id="${t.id}" data-date="${date}" data-val="skip">✗</button>
+    </div>
+  </div>`;
+}
+
+// ── TAB HISTÓRICO ─────────────────────────────────────────────────
+function renderHistorico() {
+  if (state.histSelected !== null) {
+    const t = state.tasks.find(tk => tk.id === state.histSelected);
+    if (!t) { state.histSelected = null; return renderHistorico(); }
+    return renderHistDetail(t);
+  }
+  let html = `<div class="sub-title">📊 HISTÓRICO</div>`;
+  if (state.tasks.length === 0) {
+    html += `<div class="empty"><div class="empty-icon">📭</div><div class="empty-title" style="color:var(--textDim)">NENHUMA TAREFA</div></div>`;
+    return html;
+  }
+  html += state.tasks.map(t => {
+    const {done,skip,total,pct} = taskStats(t);
+    const skipW = total > 0 ? Math.round(skip/total*100) : 0;
+    return `<button class="hist-btn" data-action="hist-select" data-id="${t.id}">
+      <div class="hist-btn-top">
+        <span style="font-size:12px">${t.type==="recorrente"?"🔁":"📅"}</span>
+        <span class="hist-name">${esc(t.name)}</span>
+        <span class="hist-pct">${pct}%</span>
+      </div>
+      <div class="mini-bar">
+        <div class="mini-fill" style="width:${pct}%"></div>
+        ${skipW>0?`<div class="mini-red" style="width:${skipW}%"></div>`:""}
+      </div>
+      <div class="hist-stats">
+        <span class="hist-stat stat-green">✓ ${done} feitas</span>
+        <span class="hist-stat stat-red">✗ ${skip} puladas</span>
+        <span class="hist-stat stat-dim">${total} agendadas</span>
+      </div>
+    </button>`;
+  }).join("");
+  return html;
+}
+
+function renderHistDetail(t) {
+  const {done,skip,total,pct,sched} = taskStats(t);
+  const days = last30();
+  const today = todayStr();
+
+  const calHTML = days.map(d => {
+    const isSched = sched.includes(d);
+    const s = isSched ? (state.completions[`${t.id}_${d}`]||null) : null;
+    const isToday = d === today;
+    const bg = !isSched ? "var(--cardAlt)" : s==="done" ? "#1a4a20" : s==="skip" ? "#3a0a0a" : "var(--card)";
+    const bc = isToday ? "var(--accent)" : !isSched ? "#4a308040" : s==="done" ? "var(--green)" : s==="skip" ? "var(--red)" : "var(--border)";
+    const numC = s==="done" ? "var(--green)" : s==="skip" ? "var(--red)" : "var(--textDim)";
+    const sym = s==="done" ? "✓" : s==="skip" ? "✗" : isSched ? "·" : "";
+    const op = isSched ? 1 : 0.3;
+    return `<div class="cal-day" style="background:${bg};border-color:${bc};opacity:${op}">
+      <span class="cal-num" style="color:${numC}">${new Date(d+"T12:00:00").getDate()}</span>
+      <span class="cal-sym">${sym}</span>
+    </div>`;
+  }).join("");
+
+  const logHTML = [...sched].reverse().map(d => {
+    const s = state.completions[`${t.id}_${d}`] || null;
+    const icon = s==="done" ? "✅" : s==="skip" ? "❌" : "⬜";
+    const sc = s==="done" ? "var(--green)" : s==="skip" ? "var(--red)" : "var(--border)";
+    const sl = s==="done" ? "FEITA" : s==="skip" ? "PULADA" : "—";
+    const dl = new Date(d+"T12:00:00").toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"});
+    return `<div class="log-item">
+      <span class="log-icon">${icon}</span>
+      <span class="log-date">${dl}</span>
+      <span class="log-status" style="color:${sc}">${sl}</span>
+    </div>`;
+  }).join("");
+
+  return `
+  <button class="btn-back" data-action="hist-back">← VOLTAR</button>
+  <div style="font-size:8px;color:var(--accent);margin-bottom:4px;word-break:break-word">${esc(t.name)}</div>
+  <div style="font-size:5px;color:var(--textDim);margin-bottom:14px">
+    ${t.type==="recorrente" ? `🔁 ${t.days?.map(d=>DAYS_PT[d]).join(", ")}` : "📅 tarefa única"}
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-val" style="color:var(--green)">${done}</div><div class="stat-lbl">FEITAS</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--red)">${skip}</div><div class="stat-lbl">PULADAS</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent)">${pct}%</div><div class="stat-lbl">TAXA</div></div>
+  </div>
+  <div style="background:#0d0920;border-radius:6px;height:14px;border:2px solid var(--border);overflow:hidden;padding:2px;margin-bottom:14px">
+    <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--greenD),var(--green));border-radius:2px;transition:width .4s"></div>
+  </div>
+  <div style="font-size:6px;color:var(--textDim);margin-bottom:8px">ÚLTIMOS 30 DIAS</div>
+  <div class="cal-wrap">${calHTML}</div>
+  <div style="font-size:6px;color:var(--textDim);margin-bottom:8px;margin-top:16px">REGISTRO COMPLETO</div>
+  ${logHTML}`;
+}
+
+// ── TAB ADICIONAR ─────────────────────────────────────────────────
+function renderAdicionar() {
+  const {tipo, dias} = state;
+  return `
+  <div class="sub-title">➕ NOVA TAREFA</div>
+  <div class="form-group">
+    <div class="form-label">TIPO</div>
+    <div class="type-btns">
+      <button class="type-btn ${tipo==="recorrente"?"active":""}" data-action="set-tipo" data-val="recorrente">
+        <div class="type-btn-label">🔁 RECORRENTE</div><div class="type-btn-sub">Dias da semana</div>
+      </button>
+      <button class="type-btn ${tipo==="unica"?"active":""}" data-action="set-tipo" data-val="unica">
+        <div class="type-btn-label">📅 ÚNICA VEZ</div><div class="type-btn-sub">Data específica</div>
+      </button>
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="form-label">NOME</div>
+    <input class="input" id="task-name" placeholder="Ex: Meditar, Academia..." autocomplete="off">
+  </div>
+  ${tipo==="recorrente" ? `
+  <div class="form-group">
+    <div class="form-label">DIAS DA SEMANA</div>
+    <div class="days-wrap">
+      ${DAYS_PT.map((d,i) => `<button class="day-pill ${dias.includes(i)?"active":""}" data-action="toggle-dia" data-i="${i}">${d}</button>`).join("")}
+    </div>
+    ${dias.length===0 ? `<div class="hint">Selecione ao menos um dia</div>` : ""}
+  </div>` : `
+  <div class="form-group">
+    <div class="form-label">DATA</div>
+    <input type="date" class="input" id="task-date" min="${todayStr()}">
+  </div>`}
+  <button class="btn btn-accent btn-full" id="save-btn" style="padding:14px;font-size:9px" data-action="save-task">💾 SALVAR TAREFA</button>
+  <div id="saved-msg" class="saved-msg" style="display:none">Tarefa adicionada! 🎉</div>`;
+}
+
+// ── TAB GERENCIAR ─────────────────────────────────────────────────
+function renderGerenciar() {
+  const rec = state.tasks.filter(t=>t.type==="recorrente");
+  const uni = state.tasks.filter(t=>t.type==="unica");
+  let html = `<div class="sub-title">⚙️ GERENCIAR TAREFAS</div>`;
+  if (state.tasks.length === 0) {
+    html += `<div class="empty"><div class="empty-icon">📭</div><div class="empty-title" style="color:var(--textDim)">NENHUMA TAREFA<br><span class="empty-sub">USE A ABA ➕ PARA ADICIONAR!</span></div></div>`;
+    return html;
+  }
+  if (rec.length > 0) {
+    html += `<div style="margin-bottom:18px">
+      <div class="section-label" style="display:flex;align-items:center;gap:6px">🔁 RECORRENTES <span style="background:var(--accent);color:#1a1035;border-radius:10px;padding:2px 7px;font-size:6px">${rec.length}</span></div>
+      ${rec.map(t => manageCardHTML(t)).join("")}
+    </div>`;
+  }
+  if (uni.length > 0) {
+    html += `<div style="margin-bottom:18px">
+      <div class="section-label" style="display:flex;align-items:center;gap:6px">📅 ÚNICAS <span style="background:var(--accent);color:#1a1035;border-radius:10px;padding:2px 7px;font-size:6px">${uni.length}</span></div>
+      ${uni.map(t => manageCardHTML(t)).join("")}
+    </div>`;
+  }
+  return html;
+}
+
+function manageCardHTML(t) {
+  const daysHTML = t.type==="recorrente"
+    ? `<div class="day-tags">${DAYS_PT.map((d,i) => `<span class="day-tag ${t.days?.includes(i)?"on":"off"}">${d}</span>`).join("")}</div>`
+    : `<div style="font-size:5px;font-family:var(--font);color:var(--accent)">📅 ${t.date ? new Date(t.date+"T12:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",year:"numeric"}) : "—"}</div>`;
+  return `<div class="manage-card">
+    <span style="font-size:14px">${t.type==="recorrente"?"🔁":"📅"}</span>
+    <div style="flex:1;min-width:0">
+      <div class="manage-name">${esc(t.name)}</div>
+      ${daysHTML}
+    </div>
+    <button class="del-btn" data-action="delete-task" data-id="${t.id}">✕</button>
+  </div>`;
+}
+
+// ── EVENT BINDING ─────────────────────────────────────────────────
+function bindEvents() {
+  document.querySelectorAll("[data-action]").forEach(el => {
+    el.addEventListener("click", handleAction);
+    el.addEventListener("touchend", e => { e.preventDefault(); handleAction.call(el, e); });
+  });
+}
+
+function handleAction(e) {
+  const el = e.currentTarget || this;
+  const action = el.dataset.action;
+
+  if (action === "mark") {
+    setStatus(el.dataset.id, el.dataset.date, el.dataset.val);
+  }
+  else if (action === "hist-select") {
+    state.histSelected = parseInt(el.dataset.id);
+    render();
+  }
+  else if (action === "hist-back") {
+    state.histSelected = null;
+    render();
+  }
+  else if (action === "set-tipo") {
+    state.tipo = el.dataset.val;
+    state.dias = [];
+    render();
+  }
+  else if (action === "toggle-dia") {
+    const i = parseInt(el.dataset.i);
+    if (state.dias.includes(i)) state.dias = state.dias.filter(d=>d!==i);
+    else state.dias.push(i);
+    render();
+  }
+  else if (action === "save-task") {
+    const nameEl = document.getElementById("task-name");
+    const name = nameEl ? nameEl.value.trim() : "";
+    if (!name) return;
+    if (state.tipo === "recorrente" && state.dias.length === 0) return;
+    const dateEl = document.getElementById("task-date");
+    const date = dateEl ? dateEl.value : "";
+    if (state.tipo === "unica" && !date) return;
+    state.tasks.push({
+      id: Date.now(),
+      name,
+      type: state.tipo,
+      days: state.tipo === "recorrente" ? [...state.dias] : undefined,
+      date: state.tipo === "unica" ? date : undefined,
+    });
+    saveTasks();
+    state.dias = [];
+    render();
+    const msg = document.getElementById("saved-msg");
+    if (msg) { msg.style.display = "block"; setTimeout(()=>{ if(msg) msg.style.display="none"; },1800); }
+  }
+  else if (action === "delete-task") {
+    state.tasks = state.tasks.filter(t => t.id !== parseInt(el.dataset.id));
+    saveTasks();
+    render();
+  }
+}
+
+// ── TAB NAVIGATION ────────────────────────────────────────────────
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    state.tab = btn.dataset.tab;
+    state.histSelected = null;
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    render();
+  });
+});
+
+// ── INIT ─────────────────────────────────────────────────────────
+load();
+updateDateLabel();
+render();
+</script>
+</body>
+</html>
