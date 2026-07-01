@@ -41,7 +41,9 @@
     background: linear-gradient(160deg, #1a1035 0%, #2d1b5e 100%);
     color: var(--text);
     font-family: var(--font);
-    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
   }
   body {
     padding-top: env(safe-area-inset-top);
@@ -76,6 +78,7 @@
   }
 
   .tab-btn {
+    touch-action: manipulation;
     flex: 1; border: none; background: transparent; color: var(--textDim);
     font-family: var(--font); font-size: 5px; padding: 10px 2px 8px;
     cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px;
@@ -139,6 +142,7 @@
   .task-type { font-size: 5px; color: var(--textDim); margin-top: 3px; }
   .task-btns { display: flex; gap: 6px; flex-shrink: 0; }
   .mark-btn {
+    touch-action: manipulation;
     width: 34px; height: 34px; border: none; border-radius: 6px; cursor: pointer;
     font-size: 14px; transition: all 0.1s; background: var(--cardAlt); color: var(--textDim);
     box-shadow: 0 3px 0 var(--border);
@@ -178,6 +182,7 @@
     font-family: var(--font); font-size: 8px; border: none; padding: 10px 16px;
     cursor: pointer; letter-spacing: 1px; text-transform: uppercase;
     border-radius: 6px; transition: transform 0.05s, box-shadow 0.05s;
+    touch-action: manipulation;
   }
   .btn:active { transform: translateY(4px); box-shadow: none !important; }
   .btn-accent { background: var(--accent); color: #1a1035; box-shadow: 0 4px 0 var(--accentD); }
@@ -201,6 +206,7 @@
   /* ── TYPE BUTTONS ── */
   .type-btns { display: flex; gap: 8px; }
   .type-btn {
+    touch-action: manipulation;
     flex: 1; border: 2px solid var(--border); background: var(--card);
     color: var(--textDim); border-radius: 10px; padding: 12px 6px;
     cursor: pointer; font-family: var(--font); text-align: center;
@@ -213,6 +219,7 @@
   /* ── DAY PILLS ── */
   .days-wrap { display: flex; gap: 5px; flex-wrap: wrap; }
   .day-pill {
+    touch-action: manipulation;
     font-family: var(--font); font-size: 9px; background: var(--card);
     color: var(--textDim); border: 2px solid var(--border); border-radius: 6px;
     padding: 12px 4px; cursor: pointer; min-width: 40px; text-align: center;
@@ -222,6 +229,7 @@
 
   /* ── HISTORY ── */
   .hist-btn {
+    touch-action: manipulation;
     width: 100%; background: var(--card); border: 2px solid var(--border);
     border-radius: 10px; padding: 12px 14px; margin-bottom: 8px;
     cursor: pointer; text-align: left; box-shadow: 0 4px 0 var(--border);
@@ -701,7 +709,7 @@ function manageCardHTML(t) {
 function bindEvents() {
   document.querySelectorAll("[data-action]").forEach(el => {
     el.addEventListener("click", handleAction);
-    el.addEventListener("touchend", e => { e.preventDefault(); handleAction.call(el, e); });
+
   });
 }
 
